@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>About - FrameVault</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(180deg, #f7f9fc, #ffffff);
+      color: #333;
+      line-height: 1.7;
+    }
+
+    /* NAVBAR */
+    nav {
+      background: rgba(17, 17, 17, 0.95);
+      color: white;
+      padding: 16px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(6px);
+    }
+
+    nav h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 1px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 24px;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      color: white;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #ff9800;
+    }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(
+        rgba(0,0,0,0.55),
+        rgba(0,0,0,0.55)
+      ),
+      url("https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1600&q=80");
+      background-size: cover;
+      background-position: center;
+      padding: 120px 20px;
+      text-align: center;
+      color: white;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 20px;
+      max-width: 700px;
+      margin: auto;
+      opacity: 0.95;
+    }
+
+    /* ABOUT CARD */
+    .about-section {
+      max-width: 1000px;
+      margin: -80px auto 60px;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+    }
+
+    .about-section p {
+      font-size: 18px;
+      margin-bottom: 22px;
+    }
+
+    .highlight-orange {
+      color: #ff9800;
+      font-weight: 600;
+    }
+
+    .highlight-blue {
+      color: #2196f3;
+      font-weight: 600;
+    }
+
+    .highlight-green {
+      color: #4caf50;
+      font-weight: 600;
+    }
+
+    /* IMAGE */
+    .about-image {
+      margin: 40px 0;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+
+    .about-image img {
+      width: 100%;
+      display: block;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 25px;
+      font-size: 14px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 38px;
+      }
+
+      .about-section {
+        margin: -60px 15px 40px;
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAVIGATION -->
+  <nav>
+    <h1>FrameVault</h1>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="gallery.html">Gallery</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero">
+    <h1>About FrameVault</h1>
+    <p>Beautiful stock photos and videos designed to inspire creativity everywhere.</p>
+  </section>
+
+  <!-- ABOUT CONTENT -->
+  <section class="about-section">
+    <p>
+      Welcome to <span class="highlight-orange">FrameVault</span>, your destination for
+      <span class="highlight-blue">high-quality stock photos</span> and videos.
+      Our mission is to empower <span class="highlight-green">creators</span>
+      with inspiring visuals that elevate creative projects.
+    </p>
+
+    <p>
+      At <span class="highlight-orange">FrameVault</span>, we believe
+      <span class="highlight-blue">visual content</span> should be easy to discover and enjoyable to use.
+      Whether you are a <span class="highlight-green">blogger</span>, designer, or entrepreneur,
+      our curated gallery offers a wide range of styles and categories.
+    </p>
+
+    <p>
+      We focus on delivering <span class="highlight-green">professional, high-resolution visuals</span>
+      that support creativity, storytelling, and design across many use cases.
+    </p>
+
+    <div class="about-image">
+      <img src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80" alt="Creative workspace">
+    </div>
+
+    <p>
+      Join our growing community and explore new images and videos daily.
+      <span class="highlight-blue">FrameVault</span> is built to support
+      <span class="highlight-green">creators like you</span>.
+    </p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    © 2026 FrameVault | Inspired by Pexels • Unsplash • Pixabay
+  </footer>
+
+</body>
+</html>

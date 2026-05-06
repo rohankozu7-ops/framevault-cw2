@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sign Up</title>
+
+<style>
+body{
+font-family:Segoe UI;
+background:#0f0f0f;
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:#1a1a1a;
+padding:40px;
+border-radius:10px;
+width:300px;
+text-align:center;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:10px 0;
+border-radius:6px;
+border:none;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#ff9800;
+border:none;
+border-radius:6px;
+font-weight:bold;
+cursor:pointer;
+}
+
+a{
+color:#ff9800;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Create Account</h2>
+
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+
+<button onclick="signup()">Sign Up</button>
+
+<p>Already have an account? <a href="login.html">Login</a></p>
+
+</div>
+
+<script>
+
+function signup(){
+
+let email = document.getElementById("email").value;
+let password = document.getElementById("password").value;
+
+localStorage.setItem("userEmail", email);
+localStorage.setItem("userPassword", password);
+
+alert("Account created!");
+
+window.location.href="login.html";
+
+}
+
+</script>
+
+</body>
+</html>

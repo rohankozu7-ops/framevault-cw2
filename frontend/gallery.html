@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gallery - FrameVault</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+    }
+
+    nav {
+      background: #222;
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      background: #ff9800;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: background 0.3s;
+    }
+
+    nav a:hover {
+      background: #e68900;
+    }
+
+    header {
+      background: #111;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header input {
+      width: 60%;
+      padding: 12px;
+      margin-top: 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+    }
+
+    .container {
+      padding: 30px;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+      text-align: center;
+      padding-bottom: 10px;
+    }
+
+    .card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-name {
+      margin-top: 8px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+      padding: 0 10px 10px;
+      word-break: break-word;
+    }
+
+    footer {
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">Exit to Home</a>
+  <a href="upload.html">Upload</a>
+</nav>
+
+<header>
+  <h1>FrameVault Gallery</h1>
+  <p>High-quality stock photos and videos</p>
+  <input type="text" placeholder="Search photos...">
+</header>
+
+<div class="container">
+  <h2>Gallery</h2>
+
+  <!-- IMPORTANT: keep this id -->
+  <div class="gallery" id="gallery">
+
+    <!-- Your default images -->
+    <div class="card">
+      <img src="https://picsum.photos/id/1015/800/600" alt="Mountain Lake">
+      <div class="photo-name">Mountain Lake</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1003/800/600" alt="Fallow deer">
+      <div class="photo-name">Fallow deer</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1025/800/600" alt="Puppy">
+      <div class="photo-name">Puppy</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1039/800/600" alt="Foggy Forest">
+      <div class="photo-name">Foggy Forest</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1043/800/600" alt="National park">
+      <div class="photo-name">National park</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1050/800/600" alt="Cliffs">
+      <div class="photo-name">Cliffs</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1069/800/600" alt="Sea Nettle">
+      <div class="photo-name">Sea Nettle</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1074/800/600" alt="Snow Tiger">
+      <div class="photo-name">Snow Tiger</div>
+    </div>
+
+    <div class="card">
+      <img src="https://picsum.photos/id/1084/800/600" alt="Walruses">
+      <div class="photo-name">Walruses</div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  © 2026 FrameVault | Inspired by Pexels • Unsplash • Pixabay
+</footer>
+<div id="imageModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center;">
+
+<div style="background:white; padding:20px; border-radius:10px; max-width:650px; text-align:center;">
+
+<img id="modalImg" style="max-width:100%; height:auto;">
+
+<h3 id="modalTitle"></h3>
+<p id="modalSize"></p>
+<p id="modalLocation"></p>
+<p id="modalTime"></p>
+
+<button id="deleteBtn" style="background:red; color:white; padding:10px 15px; border:none; border-radius:5px;">
+Delete Image
+</button>
+
+<button onclick="closeModal()" style="margin-left:10px; padding:10px 15px;">
+Close
+</button>
+
+</div>
+</div>
+<!-- Image Viewer Modal -->
+<div id="imageModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center;">
+
+  <div style="background:white; padding:20px; border-radius:10px; max-width:600px; text-align:center;">
+
+    <img id="modalImg" style="max-width:100%; height:auto;">
+
+    <p id="modalTitle"></p>
+    <p id="modalSize"></p>
+
+    <button id="deleteBtn" style="background:red; color:white; padding:10px 15px; border:none; border-radius:5px;">
+      Delete Image
+    </button>
+
+    <button onclick="closeModal()" style="margin-left:10px; padding:10px 15px;">
+      Close
+    </button>
+
+  </div>
+</div>
+<script>
+
+const gallery = document.getElementById("gallery");
+const uploads = JSON.parse(localStorage.getItem("framevault_uploads") || "[]");
+
+let currentIndex = null;
+let uploadedImage = false;
+
+
+/* CLICK DEFAULT IMAGES */
+
+document.querySelectorAll(".card img").forEach((img) => {
+
+img.addEventListener("click", () => {
+
+document.getElementById("modalImg").src = img.src;
+document.getElementById("modalTitle").innerText = img.alt;
+
+document.getElementById("modalSize").innerText =
+"Size: Unknown (default image)";
+
+document.getElementById("modalLocation").innerText =
+"Location: Sample Gallery Image";
+
+document.getElementById("modalTime").innerText =
+"Uploaded: Default Image";
+
+document.getElementById("deleteBtn").style.display = "none";
+
+document.getElementById("imageModal").style.display = "flex";
+
+});
+
+});
+
+
+/* CLICK UPLOADED IMAGES */
+
+uploads.forEach((item, index) => {
+
+const card = document.createElement("div");
+card.className = "card";
+
+card.innerHTML = `
+<img src="${item.dataUrl}" alt="${item.title}">
+<div class="photo-name">${item.title}</div>
+`;
+
+card.querySelector("img").addEventListener("click", () => {
+
+currentIndex = index;
+uploadedImage = true;
+
+document.getElementById("modalImg").src = item.dataUrl;
+document.getElementById("modalTitle").innerText = item.title;
+
+document.getElementById("modalSize").innerText =
+"Size: " + (item.fileSize/1024).toFixed(2) + " KB";
+
+document.getElementById("modalLocation").innerText =
+"Location: User Upload";
+
+document.getElementById("modalTime").innerText =
+"Uploaded: " + new Date(item.createdAt).toLocaleString();
+
+document.getElementById("deleteBtn").style.display = "inline-block";
+
+document.getElementById("imageModal").style.display = "flex";
+
+});
+
+gallery.prepend(card);
+
+});
+
+
+function closeModal(){
+document.getElementById("imageModal").style.display = "none";
+}
+
+
+document.getElementById("deleteBtn").addEventListener("click", () => {
+
+if(uploadedImage){
+
+uploads.splice(currentIndex,1);
+
+localStorage.setItem("framevault_uploads", JSON.stringify(uploads));
+
+location.reload();
+
+}
+
+});
+
+</script>
+</body>
+</html>
