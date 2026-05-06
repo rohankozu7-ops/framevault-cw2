@@ -11,23 +11,20 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '24'
 
       - name: Install dependencies
         working-directory: ./backend
-        run: npm install
-
-      - name: Zip artifact for deployment
-        run: zip -r release.zip . -x "*/node_modules/*" -x ".git/*"
+        run: npm install --production
 
       - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'framevault'
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: release.zip
+          package: .
