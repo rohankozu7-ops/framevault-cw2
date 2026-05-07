@@ -1,93 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Login</title>
-
+<title>Login - FrameVault</title>
 <style>
-body{
-font-family:Segoe UI;
-background:#0f0f0f;
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-
-.box{
-background:#1a1a1a;
-padding:40px;
-border-radius:10px;
-width:300px;
-text-align:center;
-}
-
-input{
-width:100%;
-padding:10px;
-margin:10px 0;
-border-radius:6px;
-border:none;
-}
-
-button{
-width:100%;
-padding:10px;
-background:#ff9800;
-border:none;
-border-radius:6px;
-font-weight:bold;
-cursor:pointer;
-}
-
-a{
-color:#ff9800;
-}
+body{font-family:Segoe UI;background:#0f0f0f;color:white;display:flex;justify-content:center;align-items:center;height:100vh;}
+.box{background:#1a1a1a;padding:40px;border-radius:10px;width:300px;text-align:center;}
+input{width:100%;padding:10px;margin:10px 0;border-radius:6px;border:none;box-sizing:border-box;}
+button{width:100%;padding:10px;background:#ff9800;border:none;border-radius:6px;font-weight:bold;cursor:pointer;}
+a{color:#ff9800;}
+.err{color:#ff6b6b;margin-top:10px;display:none;}
 </style>
 </head>
-
 <body>
-
 <div class="box">
-
 <h2>Login</h2>
-
 <input id="email" type="email" placeholder="Email">
 <input id="password" type="password" placeholder="Password">
-
 <button onclick="login()">Log In</button>
-
-<p>No account? <a href="signup.html">Sign Up</a></p>
-
+<p>No account? <a href="sign up.html">Sign Up</a></p>
+<div class="err" id="err"></div>
 </div>
-
 <script>
-
-function login(){
-
-let email = document.getElementById("email").value;
-let password = document.getElementById("password").value;
-
-let savedEmail = localStorage.getItem("userEmail");
-let savedPassword = localStorage.getItem("userPassword");
-
-if(email === savedEmail && password === savedPassword){
-
-alert("Login successful!");
-
-window.location.href="index.html";
-
+async function login(){
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  const err = document.getElementById('err');
+  err.style.display = 'none';
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('userEmail', email);
+      window.location.href = 'index.html';
+    } else {
+      err.textContent = data.message || 'Login failed';
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = 'Could not connect to server';
+    err.style.display = 'block';
+  }
 }
-
-else{
-
-alert("Invalid email or password");
-
-}
-
-}
-
 </script>
-
 </body>
 </html>

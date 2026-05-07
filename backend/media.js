@@ -1,91 +1,109 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 const { v4: uuidv4 } = require("uuid");
+const { BlobServiceClient } = require("@azure/storage-blob");
+const { MongoClient } = require("mongodb");
 const authMiddleware = require("./authMiddleware");
 
 const router = express.Router();
-const mediaFile = path.join(__dirname, "data", "media.json");
-const uploadFolder = path.join(__dirname, "uploads");
 
-if (!fs.existsSync(uploadFolder)) {
-  fs.mkdirSync(uploadFolder, { recursive: true });
+// Use memory storage - file goes to Blob, not disk
+const upload = multer({ storage: multer.memoryStorage() });
+
+async function getDB() {
+  const client = new MongoClient(process.env.COSMOS_CONNECTION_STRING);
+  await client.connect();
+  return client.db("framevault");
 }
 
-if (!fs.existsSync(path.dirname(mediaFile))) {
-  fs.mkdirSync(path.dirname(mediaFile), { recursive: true });
+async function uploadToBlob(buffer, filename, mimetype) {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    process.env.AZURE_STORAGE_CONNECTION_STRING
+  );
+  const containerClient = blobServiceClient.getContainerClient(
+    process.env.AZURE_CONTAINER_NAME || "media"
+  );
+  const blockBlobClient = containerClient.getBlockBlobClient(filename);
+  await blockBlobClient.uploadData(buffer, {
+    blobHTTPHeaders: { blobContentType: mimetype }
+  });
+  return blockBlobClient.url;
 }
 
-if (!fs.existsSync(mediaFile)) {
-  fs.writeFileSync(mediaFile, "[]");
-}
-
-function readMedia() {
-  return JSON.parse(fs.readFileSync(mediaFile, "utf8"));
-}
-
-function writeMedia(items) {
-  fs.writeFileSync(mediaFile, JSON.stringify(items, null, 2));
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadFolder),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
-});
-
-const upload = multer({ storage });
-
-router.post("/", authMiddleware, upload.single("image"), (req, res) => {
+// POST /api/media - upload image
+router.post("/", authMiddleware, upload.single("image"), async (req, res) => {
   const { title } = req.body;
 
   if (!req.file) {
     return res.status(400).json({ message: "No image uploaded" });
   }
 
-  const items = readMedia();
+  const filename = `${Date.now()}-${req.file.originalname}`;
+
+  const blobUrl = await uploadToBlob(
+    req.file.buffer,
+    filename,
+    req.file.mimetype
+  );
+
+  const db = await getDB();
+  const media = db.collection("media");
 
   const newItem = {
     id: uuidv4(),
     userId: req.user.userId,
     title: title || req.file.originalname,
-    fileName: req.file.filename,
+    fileName: filename,
     fileType: req.file.mimetype,
     fileSize: req.file.size,
-    url: `/uploads/${req.file.filename}`,
+    url: blobUrl,
     createdAt: new Date().toISOString()
   };
 
-  items.unshift(newItem);
-  writeMedia(items);
+  await media.insertOne(newItem);
 
   res.status(201).json(newItem);
 });
 
-router.get("/", authMiddleware, (req, res) => {
-  const items = readMedia();
-  const userItems = items.filter(item => item.userId === req.user.userId);
-  res.json(userItems);
+// GET /api/media - get all media for logged-in user
+router.get("/", authMiddleware, async (req, res) => {
+  const db = await getDB();
+  const media = db.collection("media");
+
+  const items = await media
+    .find({ userId: req.user.userId })
+    .sort({ createdAt: -1 })
+    .toArray();
+
+  res.json(items);
 });
 
-router.delete("/:id", authMiddleware, (req, res) => {
-  const items = readMedia();
+// DELETE /api/media/:id
+router.delete("/:id", authMiddleware, async (req, res) => {
+  const db = await getDB();
+  const media = db.collection("media");
 
-  const item = items.find(
-    media => media.id === req.params.id && media.userId === req.user.userId
-  );
+  const item = await media.findOne({
+    id: req.params.id,
+    userId: req.user.userId
+  });
 
   if (!item) {
     return res.status(404).json({ message: "Media not found" });
   }
 
-  const filtered = items.filter(media => media.id !== req.params.id);
-  writeMedia(filtered);
+  // Delete from Blob Storage
+  const blobServiceClient = BlobServiceClient.fromConnectionString(
+    process.env.AZURE_STORAGE_CONNECTION_STRING
+  );
+  const containerClient = blobServiceClient.getContainerClient(
+    process.env.AZURE_CONTAINER_NAME || "media"
+  );
+  const blockBlobClient = containerClient.getBlockBlobClient(item.fileName);
+  await blockBlobClient.deleteIfExists();
 
-  const filePath = path.join(uploadFolder, item.fileName);
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
-  }
+  // Delete from Cosmos DB
+  await media.deleteOne({ id: req.params.id });
 
   res.json({ message: "Deleted successfully" });
 });

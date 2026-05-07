@@ -1,20 +1,17 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
+const { MongoClient } = require("mongodb");
 
 const router = express.Router();
-const usersFile = path.join(__dirname, "../data/users.json");
 
-function readUsers() {
-  return JSON.parse(fs.readFileSync(usersFile, "utf8"));
+async function getDB() {
+  const client = new MongoClient(process.env.COSMOS_CONNECTION_STRING);
+  await client.connect();
+  return client.db("framevault");
 }
 
-function writeUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-}
 router.post("/signup", async (req, res) => {
   const { email, password } = req.body;
 
@@ -22,9 +19,10 @@ router.post("/signup", async (req, res) => {
     return res.status(400).json({ message: "Email and password required" });
   }
 
-  const users = readUsers();
-  const exists = users.find(user => user.email === email);
+  const db = await getDB();
+  const users = db.collection("users");
 
+  const exists = await users.findOne({ email });
   if (exists) {
     return res.status(409).json({ message: "User already exists" });
   }
@@ -38,16 +36,18 @@ router.post("/signup", async (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  users.push(newUser);
-  writeUsers(users);
+  await users.insertOne(newUser);
 
   res.status(201).json({ message: "Sign up successful" });
 });
+
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  const users = readUsers();
-  const user = users.find(user => user.email === email);
+  const db = await getDB();
+  const users = db.collection("users");
+
+  const user = await users.findOne({ email });
 
   if (!user) {
     return res.status(401).json({ message: "Invalid credentials" });
@@ -65,10 +65,7 @@ router.post("/login", async (req, res) => {
     { expiresIn: "1d" }
   );
 
-  res.json({
-    message: "Login successful",
-    token
-  });
+  res.json({ message: "Login successful", token });
 });
 
 module.exports = router;
