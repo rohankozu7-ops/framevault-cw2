@@ -2,42 +2,31 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { v4: uuidv4 } = require("uuid");
-const { CosmosClient } = require("@azure/cosmos");
+const { MongoClient } = require("mongodb");
 
 const router = express.Router();
 
-function getClient() {
-  return new CosmosClient(process.env.COSMOS_CONNECTION_STRING);
-}
-
-async function getContainer(containerName) {
-  const client = getClient();
-  const database = client.database("framevault");
-  const container = database.container(containerName);
-  return container;
+async function getDB() {
+  const client = new MongoClient(process.env.COSMOS_CONNECTION_STRING);
+  await client.connect();
+  return client.db("framevault");
 }
 
 router.post("/signup", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password required" });
-  }
   try {
-    const container = await getContainer("users");
-    const { resources } = await container.items
-      .query(`SELECT * FROM c WHERE c.email = "${email}"`)
-      .fetchAll();
-    if (resources.length > 0) {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+    const db = await getDB();
+    const users = db.collection("users");
+    const exists = await users.findOne({ email });
+    if (exists) {
       return res.status(409).json({ message: "User already exists" });
     }
     const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = {
-      id: uuidv4(),
-      email,
-      passwordHash,
-      createdAt: new Date().toISOString()
-    };
-    await container.items.create(newUser);
+    const newUser = { id: uuidv4(), email, passwordHash, createdAt: new Date().toISOString() };
+    await users.insertOne(newUser);
     res.status(201).json({ message: "Sign up successful" });
   } catch (err) {
     console.error(err);
@@ -46,20 +35,13 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
   try {
-    const container = await getContainer("users");
-    const { resources } = await container.items
-      .query(`SELECT * FROM c WHERE c.email = "${email}"`)
-      .fetchAll();
-    if (resources.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
-    const user = resources[0];
+    const { email, password } = req.body;
+    const db = await getDB();
+    const user = await db.collection("users").findOne({ email });
+    if (!user) return res.status(401).json({ message: "Invalid credentials" });
     const ok = await bcrypt.compare(password, user.passwordHash);
-    if (!ok) {
-      return res.status(401).json({ message: "Invalid credentials" });
-    }
+    if (!ok) return res.status(401).json({ message: "Invalid credentials" });
     const token = jwt.sign(
       { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
