@@ -7,7 +7,10 @@ const { CosmosClient } = require("@azure/cosmos");
 const router = express.Router();
 
 async function getContainer(containerName) {
-  const client = new CosmosClient(process.env.COSMOS_CONNECTION_STRING);
+  const client = new CosmosClient({
+    endpoint: "https://framevaultdb.documents.azure.com:443/",
+    key: process.env.COSMOS_KEY
+  });
   const database = client.database("framevault");
   const container = database.container(containerName);
   return container;
