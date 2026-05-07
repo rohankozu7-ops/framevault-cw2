@@ -9,6 +9,8 @@
     nav h1 { color:#ff9800; margin:0; font-size:26px; }
     nav a { color:white; text-decoration:none; margin-left:20px; padding:10px 18px; background:#ff9800; border-radius:8px; font-weight:bold; }
     nav a:hover { background:#e68900; }
+    .nav-email { color:#ff9800; margin-left:20px; font-weight:bold; }
+    .nav-logout { background:#333 !important; }
     .wrap { max-width:900px; margin:40px auto; padding:0 20px; }
     .card { background:#141414; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:24px; box-shadow:0 12px 30px rgba(0,0,0,0.35); }
     h2 { margin:0 0 10px; }
@@ -30,9 +32,11 @@
 <body>
   <nav>
     <h1>FrameVault</h1>
-    <div>
+    <div id="navLinks">
       <a href="index.html">Home</a>
       <a href="gallery.html">Gallery</a>
+      <a href="login.html">Login</a>
+      <a href="sign up.html">Sign Up</a>
     </div>
   </nav>
   <div class="wrap">
@@ -60,6 +64,24 @@
     </div>
   </div>
   <script>
+    // Navbar login state
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('userEmail');
+    const nav = document.getElementById('navLinks');
+    if (token) {
+      nav.innerHTML = `
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <span class="nav-email">${email || 'Account'}</span>
+        <a href="#" class="nav-logout" onclick="logout()">Logout</a>
+      `;
+    }
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userEmail');
+      window.location.href = 'login.html';
+    }
+
     const fileInput = document.getElementById('file');
     const titleInput = document.getElementById('title');
     const previewImg = document.getElementById('previewImg');
@@ -84,7 +106,6 @@
     document.getElementById('uploadBtn').addEventListener('click', async () => {
       msg.style.display = 'none';
       err.style.display = 'none';
-      const token = localStorage.getItem('token');
       if (!token) {
         err.textContent = '❌ Please log in first.';
         err.style.display = 'block';

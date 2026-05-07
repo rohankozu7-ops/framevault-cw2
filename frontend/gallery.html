@@ -8,6 +8,8 @@
     nav { background:#222; color:white; padding:15px 30px; display:flex; justify-content:flex-end; align-items:center; gap:12px; }
     nav a { color:white; text-decoration:none; font-weight:bold; background:#ff9800; padding:8px 16px; border-radius:6px; }
     nav a:hover { background:#e68900; }
+    .nav-email { color:#ff9800; font-weight:bold; }
+    .nav-logout { background:#333 !important; }
     header { background:#111; color:white; padding:20px; text-align:center; }
     header input { width:60%; padding:12px; margin-top:15px; font-size:16px; border:none; border-radius:5px; }
     .container { padding:30px; }
@@ -26,9 +28,11 @@
   </style>
 </head>
 <body>
-<nav>
-  <a href="index.html">Exit to Home</a>
+<nav id="navLinks">
+  <a href="index.html">Home</a>
   <a href="upload.html">Upload</a>
+  <a href="login.html">Login</a>
+  <a href="sign up.html">Sign Up</a>
 </nav>
 <header>
   <h1>FrameVault Gallery</h1>
@@ -58,8 +62,25 @@
   let allItems = [];
   let currentItem = null;
 
+  // Navbar login state
+  const token = localStorage.getItem('token');
+  const email = localStorage.getItem('userEmail');
+  const nav = document.getElementById('navLinks');
+  if (token) {
+    nav.innerHTML = `
+      <a href="index.html">Home</a>
+      <a href="upload.html">Upload</a>
+      <span class="nav-email">${email || 'Account'}</span>
+      <a href="#" class="nav-logout" onclick="logout()">Logout</a>
+    `;
+  }
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    window.location.href = 'login.html';
+  }
+
   async function loadGallery() {
-    const token = localStorage.getItem('token');
     if (!token) {
       document.getElementById('loadingMsg').textContent = 'Please log in to see your gallery.';
       return;
@@ -116,7 +137,6 @@
 
   async function deleteImage() {
     if (!currentItem) return;
-    const token = localStorage.getItem('token');
     try {
       const res = await fetch('/api/media/' + currentItem.id, {
         method: 'DELETE',
