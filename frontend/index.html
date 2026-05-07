@@ -57,7 +57,6 @@
   }
   @keyframes zoom { from { transform: scale(1); } to { transform: scale(1.1); } }
 
-  /* animated circles */
   .hero .circle {
     position: absolute;
     border-radius: 50%;
@@ -75,7 +74,6 @@
   .hero h1 { font-size: 60px; margin-bottom: 20px; text-shadow: 2px 2px 15px rgba(0,0,0,0.7); }
   .hero p { font-size: 22px; margin-bottom: 30px; color: #ddd; }
 
-  /* Buttons */
   .hero .buttons a {
     display: inline-block;
     margin: 10px;
@@ -100,7 +98,6 @@
     color: #aaa;
   }
 
-  /* Responsive */
   @media(max-width: 768px) {
     .hero h1 { font-size: 40px; }
     .hero p { font-size: 18px; }
@@ -113,12 +110,12 @@
   <!-- NAVBAR -->
   <nav>
     <h1>FrameVault</h1>
-    <div>
+    <div id="navLinks">
       <a href="about.html">About</a>
       <a href="gallery.html">Gallery</a>
       <a href="upload.html">Upload</a>
-      <a href="login.html">LogIn</a>
-      <a href="sign up.html">signup</a>
+      <a href="login.html">Login</a>
+      <a href="sign up.html">Sign Up</a>
     </div>
   </nav>
 
@@ -143,6 +140,26 @@
   <footer>
     © 2026 FrameVault | Inspired by Pexels • Unsplash • Pixabay
   </footer>
+
+  <script>
+    const token = localStorage.getItem('token');
+    const email = localStorage.getItem('userEmail');
+    const nav = document.getElementById('navLinks');
+    if (token) {
+      nav.innerHTML = `
+        <a href="about.html">About</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="upload.html">Upload</a>
+        <span style="color:#ff9800;margin-left:20px;font-weight:bold;">${email || 'Account'}</span>
+        <a href="#" onclick="logout()" style="background:#333;">Logout</a>
+      `;
+    }
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userEmail');
+      window.location.href = 'login.html';
+    }
+  </script>
 
 </body>
 </html>
